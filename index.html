@@ -3,162 +3,79 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MacBook Pro — Demo</title>
+<title>Scroll-Scrub Showcase — Vibecoding Demo</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root{
-    --bg:#f5f5f7; --panel:#ffffff; --text:#1d1d1f; --muted:#6e6e73;
-    --accent:#2a6ef0; --line:rgba(0,0,0,0.10); --hero:#e9e9ec;
+    --bg:#0b0b0d; --panel:#141417; --text:#f2f2f4; --muted:#9a9aa2;
+    --accent:#6c8cff; --line:rgba(255,255,255,0.10);
     --display:"Space Grotesk", system-ui, sans-serif;
     --body:"Inter", system-ui, -apple-system, sans-serif;
   }
   html,body{ background:var(--bg); color:var(--text); }
-  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; overflow-x:hidden; line-height:1.6; }
+  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; line-height:1.7; min-height:100vh; }
   h1,h2,h3,.display{ font-family:var(--display); letter-spacing:-0.02em; }
+  a{ color:inherit; text-decoration:none; }
   ::selection{ background:var(--accent); color:#fff; }
 
-  nav{ position:fixed; top:0; left:0; width:100%; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:18px 40px; background:rgba(245,245,247,0.7); backdrop-filter:saturate(180%) blur(14px); border-bottom:1px solid var(--line); }
-  nav .logo{ font-family:var(--display); font-weight:700; font-size:17px; }
-  nav .links{ display:flex; gap:26px; }
-  nav .links a{ color:var(--text); text-decoration:none; font-size:13px; opacity:0.8; }
-  nav .links a:hover{ opacity:1; }
-  @media (max-width:720px){ nav .links{ display:none; } }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 28px; }
+  header{ padding:clamp(70px,12vh,130px) 0 50px; text-align:center; }
+  header .kicker{ font-size:12px; letter-spacing:0.34em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+  header h1{ font-size:clamp(38px,7vw,80px); font-weight:700; line-height:1.0; }
+  header p{ margin:18px auto 0; max-width:54ch; color:var(--muted); font-size:clamp(15px,2vw,18px); }
 
-  #heroPin{ height:400vh; position:relative; }
-  .sticky{ position:sticky; top:0; height:100vh; width:100%; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; }
-  .hero-head{ flex:0 0 auto; text-align:center; padding:clamp(80px,11vh,122px) 24px 20px; }
-  .hero-head .kicker{ font-size:12px; letter-spacing:0.42em; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
-  .hero-head h1{ font-size:clamp(36px,6vw,76px); font-weight:600; line-height:0.98; letter-spacing:-0.02em; }
-  .hero-head .sub{ margin-top:10px; color:var(--muted); font-size:clamp(14px,1.6vw,18px); }
-  .hero-stage{ position:relative; flex:1 1 auto; overflow:hidden; background:var(--hero); }
-  #heroVideo,#heroCanvas{ position:absolute; inset:0; width:100%; height:100%; }
-  #heroVideo{ object-fit:cover; }
-  #heroCanvas{ display:none; }
-  .seam{ position:absolute; top:0; left:0; right:0; height:100px; z-index:2; background:linear-gradient(to bottom, var(--bg), rgba(245,245,247,0)); pointer-events:none; }
-  .scroll-hint{ position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:4; font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .scroll-hint .bar{ width:1px; height:38px; background:linear-gradient(var(--muted), transparent); animation:drop 1.6s ease-in-out infinite; }
-  @keyframes drop{ 0%{transform:scaleY(0);transform-origin:top;} 50%{transform:scaleY(1);transform-origin:top;} 51%{transform:scaleY(1);transform-origin:bottom;} 100%{transform:scaleY(0);transform-origin:bottom;} }
-  .loader{ position:absolute; inset:0; z-index:9; display:flex; align-items:center; justify-content:center; background:var(--hero); transition:opacity .6s; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); }
-  .loader.hidden{ opacity:0; pointer-events:none; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; padding-bottom:60px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; transition:transform .3s ease, border-color .3s ease; }
+  .card:hover{ transform:translateY(-6px); border-color:rgba(255,255,255,0.24); }
+  .media{ position:relative; aspect-ratio:16/10; overflow:hidden; background:#1c1c20; }
+  .media video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .media .tag{ position:absolute; top:12px; left:12px; z-index:2; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:5px 11px; border-radius:100px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); color:#fff; }
+  .body{ padding:22px 22px 24px; flex:1; display:flex; flex-direction:column; }
+  .body h3{ font-size:21px; margin-bottom:6px; }
+  .body p{ color:var(--muted); font-size:14.5px; flex:1; }
+  .body .go{ margin-top:18px; font-size:14px; font-weight:500; color:var(--accent); display:inline-flex; align-items:center; gap:7px; }
+  .card:hover .go{ gap:11px; }
 
-  section.block{ padding:120px 40px; max-width:1200px; margin:0 auto; }
-  .eyebrow{ font-size:12px; letter-spacing:0.25em; text-transform:uppercase; color:var(--accent); margin-bottom:20px; }
-  .lead{ font-size:clamp(28px,5vw,58px); font-weight:600; line-height:1.08; max-width:18ch; }
-  .lead .dim{ color:var(--muted); }
-  .grid3{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px; margin-top:64px; }
-  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:32px 28px; }
-  .card .num{ font-family:var(--display); font-size:13px; color:var(--accent); margin-bottom:24px; }
-  .card h3{ font-size:21px; margin-bottom:10px; }
-  .card p{ color:var(--muted); font-size:15px; }
-  .specs{ border-top:1px solid var(--line); margin-top:36px; }
-  .spec-row{ display:grid; grid-template-columns:1fr 2fr; gap:20px; padding:24px 0; border-bottom:1px solid var(--line); }
-  .spec-row .k{ color:var(--muted); font-size:13px; letter-spacing:0.04em; text-transform:uppercase; }
-  .spec-row .v{ font-size:clamp(18px,2.4vw,26px); font-weight:500; }
-  .quote{ max-width:900px; margin:0 auto; text-align:center; }
-  .quote blockquote{ font-family:var(--display); font-size:clamp(26px,4.5vw,46px); font-weight:500; line-height:1.18; }
-  .quote .by{ margin-top:26px; color:var(--muted); font-size:14px; }
-  .cta{ text-align:center; padding:150px 40px; border-top:1px solid var(--line); }
-  .cta h2{ font-size:clamp(40px,8vw,96px); font-weight:700; line-height:1.0; }
-  .cta .btn{ display:inline-block; margin-top:36px; padding:16px 42px; border-radius:100px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600; font-size:15px; transition:transform .25s; }
-  .cta .btn:hover{ transform:translateY(-3px); }
-  footer{ padding:46px 40px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; color:var(--muted); font-size:13px; }
-
-  .reveal{ opacity:0; transform:translateY(38px); transition:opacity .9s ease, transform .9s ease; }
-  .reveal.in{ opacity:1; transform:none; }
+  .note{ border-top:1px solid var(--line); padding:34px 0 80px; color:var(--muted); font-size:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+  .note a{ color:var(--accent); }
 </style>
 </head>
 <body>
-<nav>
-  <div class="logo">MacBook Pro</div>
-  <div class="links"><a href="#features">Overview</a><a href="#specs">Specs</a><a href="#reviews">Reviews</a><a href="#preorder">Buy</a></div>
-</nav>
+<div class="wrap">
+  <header>
+    <div class="kicker">Vibecoding class · scroll demos</div>
+    <h1>Scroll-Scrub Showcase</h1>
+    <p>Three premium, scroll-driven landing pages — where the hero animation is controlled frame-by-frame by your scroll. Built with plain HTML, CSS and JavaScript. No frameworks, no dependencies.</p>
+  </header>
 
-<section id="heroPin">
-  <div class="sticky">
-    <div class="hero-head" id="heroCopy">
-      <div class="kicker">Introducing</div>
-      <h1>MacBook Pro</h1>
-      <p class="sub">Mind-blowing. Head-turning. Scroll to meet it.</p>
-    </div>
-    <div class="hero-stage">
-      <div class="loader" id="loader">Loading…</div>
-      <video id="heroVideo" muted playsinline preload="auto" src="mac.mp4"></video>
-      <canvas id="heroCanvas"></canvas>
-      <div class="seam"></div>
-      <div class="scroll-hint" id="scrollHint"><span>Scroll</span><span class="bar"></span></div>
-    </div>
+  <div class="grid">
+    <a class="card" href="macbook.html">
+      <div class="media"><span class="tag">Product · Tech</span><video src="mac.mp4" muted loop playsinline preload="metadata"></video></div>
+      <div class="body"><h3>MacBook Pro</h3><p>A scroll-scrubbed product video in a clean Apple-style light theme. Scroll to rotate the laptop, then the page reveals features and specs.</p><span class="go">View demo →</span></div>
+    </a>
+    <a class="card" href="shirt.html">
+      <div class="media"><span class="tag">Product · Fashion</span><video src="shirt.mp4" muted loop playsinline preload="metadata"></video></div>
+      <div class="body"><h3>The Summit Tee</h3><p>The same technique with a warm editorial fashion look. The garment turns as you scroll, then the story and fabric details appear.</p><span class="go">View demo →</span></div>
+    </a>
+    <a class="card" href="recipe.html">
+      <div class="media"><span class="tag">Food · Story</span><video src="foodhero.mp4" muted loop playsinline preload="metadata"></video></div>
+      <div class="body"><h3>Nasi Lemak</h3><p>A non-product scroll story. A ladle pours sambal over rice as you scroll, then the dish's components and origin are revealed.</p><span class="go">View demo →</span></div>
+    </a>
   </div>
-</section>
 
-<section class="block" id="intro">
-  <div class="eyebrow reveal">Supercharged by M4 Pro</div>
-  <h2 class="lead reveal">So fast and so fluid, <span class="dim">it gets out of your way.</span></h2>
-</section>
-<section class="block" id="features">
-  <div class="eyebrow reveal">Why you'll love it</div>
-  <div class="grid3">
-    <div class="card reveal"><div class="num">01</div><h3>M4 Pro chip</h3><p>A huge leap in CPU and GPU speed — edit, render and compile through the heaviest work without a sound.</p></div>
-    <div class="card reveal"><div class="num">02</div><h3>Up to 22 hours</h3><p>The longest battery life ever in a Mac. Leave the charger at home and just keep going.</p></div>
-    <div class="card reveal"><div class="num">03</div><h3>Liquid Retina XDR</h3><p>Extreme dynamic range, 1000 nits of sustained brightness, and colour so true it feels like glass.</p></div>
+  <div class="note">
+    <span>Built for a vibecoding class · 2026</span>
+    <span>Scroll-scrub heroes · vanilla JS · <a href="https://github.com/Trojanhammer/vibecoding-demo">source</a></span>
   </div>
-</section>
-<section class="block" id="specs">
-  <div class="eyebrow reveal">The specifics</div>
-  <div class="specs">
-    <div class="spec-row reveal"><div class="k">Chip</div><div class="v">Apple M4 Pro · 14-core CPU, 20-core GPU</div></div>
-    <div class="spec-row reveal"><div class="k">Memory</div><div class="v">Up to 48GB unified memory</div></div>
-    <div class="spec-row reveal"><div class="k">Display</div><div class="v">14.2″ Liquid Retina XDR</div></div>
-    <div class="spec-row reveal"><div class="k">Battery</div><div class="v">Up to 22 hours</div></div>
-    <div class="spec-row reveal"><div class="k">Weight</div><div class="v">1.55 kg</div></div>
-  </div>
-</section>
-<section class="block quote" id="reviews">
-  <blockquote class="reveal">"I stopped noticing the laptop and started noticing my ideas. That's the highest compliment I can give a tool."</blockquote>
-  <div class="by reveal">— Marcus Chen, Creative Director · ★ 4.9 / 5</div>
-</section>
-<section class="cta" id="preorder">
-  <h2 class="reveal">MacBook Pro.<br>From $1,999.</h2>
-  <a href="#" class="btn reveal">Buy</a>
-</section>
-<footer>
-  <div>© 2026 — MacBook Pro demo page for vibecoding class</div>
-  <div>Scroll-scrub hero · vanilla JS</div>
-</footer>
+</div>
 
 <script>
-(function(){
-  var pin=document.getElementById('heroPin'), stage=pin.querySelector('.hero-stage');
-  var video=document.getElementById('heroVideo'), canvas=document.getElementById('heroCanvas');
-  var loader=document.getElementById('loader'), heroCopy=document.getElementById('heroCopy'), scrollHint=document.getElementById('scrollHint');
-  var ctx=canvas.getContext('2d'), mode=null, dpr=Math.min(window.devicePixelRatio||1,2);
-  function hideLoader(){ loader.classList.add('hidden'); }
-  function getProgress(){ var t=pin.offsetHeight-window.innerHeight; var s=Math.min(Math.max(-pin.getBoundingClientRect().top,0),t); return t>0?s/t:0; }
-  function sizeCanvas(){ canvas.width=stage.clientWidth*dpr; canvas.height=stage.clientHeight*dpr; }
-  function drawCanvas(p){
-    var W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H);
-    var bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#ececed'); bg.addColorStop(1,'#dadbde'); ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-    var cx=W/2,cy=H/2,w=Math.min(W,H)*0.46,h=w*0.6,flip=Math.cos(p*Math.PI*2);
-    ctx.save(); ctx.translate(cx,cy); ctx.scale(flip,1);
-    var g=ctx.createLinearGradient(-w/2,0,w/2,0); g.addColorStop(0,'#b9bcc2'); g.addColorStop(0.5,'#e7e8ec'); g.addColorStop(1,'#aeb1b8'); ctx.fillStyle=g;
-    var r=w*0.05,x=-w/2,y=-h/2; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,'+(0.12+0.20*Math.abs(flip))+')'; ctx.fillRect(x,y,w*0.5,h); ctx.restore();
-    ctx.fillStyle='rgba(60,60,67,0.6)'; ctx.font=(14*dpr)+'px sans-serif'; ctx.textAlign='center'; ctx.fillText(Math.round(p*100)+'%',cx,cy+h*0.95);
-  }
-  var ticking=false;
-  function update(){ var p=getProgress(); if(mode==='video'&&video.duration){ video.currentTime=p*video.duration; } else if(mode==='canvas'){ drawCanvas(p); } heroCopy.style.opacity=Math.max(0,1-p/0.7); scrollHint.style.opacity=Math.max(0,1-p/0.12); ticking=false; }
-  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }
-  function startVideo(){ if(mode==='video')return; mode='video'; canvas.style.display='none'; video.style.display='block'; hideLoader(); update(); }
-  function startCanvas(){ if(mode==='video')return; mode='canvas'; video.style.display='none'; canvas.style.display='block'; sizeCanvas(); hideLoader(); update(); }
-  function tryVideo(){ if(video.videoWidth && video.duration>0){ startVideo(); return true; } return false; }
-  video.addEventListener('loadedmetadata',tryVideo); video.addEventListener('loadeddata',tryVideo); video.addEventListener('canplay',tryVideo);
-  video.addEventListener('error',startCanvas);
-  try{ video.load(); }catch(e){}
-  if(!tryVideo()){ setTimeout(function(){ if(mode!=='video') startCanvas(); },1500); }
-  window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',function(){ dpr=Math.min(window.devicePixelRatio||1,2); if(mode==='canvas') sizeCanvas(); update(); });
-  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:0.2});
-  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-})();
+  document.querySelectorAll('.card').forEach(function(card){
+    var v = card.querySelector('video');
+    if(!v) return;
+    card.addEventListener('mouseenter', function(){ var p=v.play(); if(p&&p.catch)p.catch(function(){}); });
+    card.addEventListener('mouseleave', function(){ v.pause(); v.currentTime=0; });
+  });
 </script>
 </body>
 </html>
