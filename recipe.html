@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nasi Lemak — Scroll Story</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#fbf3e8; --panel:#fff8ee; --text:#2a1d12; --muted:#8a7560;
+    --accent:#c0531f; --line:rgba(60,30,10,0.14); --hero:#f0e2cf;
+    --display:Georgia, "Times New Roman", serif;
+    --body:"Inter", system-ui, -apple-system, sans-serif;
+  }
+  html,body{ background:var(--bg); color:var(--text); }
+  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; overflow-x:hidden; line-height:1.7; }
+  h1,h2,h3,.display{ font-family:var(--display); letter-spacing:-0.01em; font-weight:500; }
+  ::selection{ background:var(--accent); color:#fff; }
+
+  nav{ position:fixed; top:0; left:0; width:100%; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:18px 40px; background:rgba(251,243,232,0.7); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  nav .logo{ font-family:var(--display); font-weight:500; font-size:19px; letter-spacing:0.04em; }
+  nav .links{ display:flex; gap:24px; }
+  nav .links a{ color:var(--text); text-decoration:none; font-size:13px; letter-spacing:0.04em; text-transform:uppercase; opacity:0.8; }
+  nav .links a:hover{ opacity:1; }
+  @media (max-width:720px){ nav .links{ display:none; } }
+
+  #foodPin{ height:460vh; position:relative; }
+  .sticky{ position:sticky; top:0; height:100vh; width:100%; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; }
+  .hero-head{ flex:0 0 auto; text-align:center; padding:clamp(80px,11vh,122px) 24px 18px; }
+  .hero-head .kicker{ font-size:12px; letter-spacing:0.38em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  .hero-head h1{ font-size:clamp(38px,6.4vw,82px); font-weight:500; line-height:0.98; }
+  .hero-head .sub{ margin-top:10px; color:var(--muted); font-size:clamp(14px,1.7vw,18px); font-family:var(--body); }
+  .hero-stage{ position:relative; flex:1 1 auto; overflow:hidden; background:var(--hero); }
+  #foodVideo,#foodCanvas{ position:absolute; inset:0; width:100%; height:100%; }
+  #foodVideo{ object-fit:cover; object-position:center bottom; display:none; }
+  .scroll-hint{ position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:4; font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .scroll-hint .bar{ width:1px; height:38px; background:linear-gradient(var(--muted), transparent); animation:drop 1.6s ease-in-out infinite; }
+  @keyframes drop{ 0%{transform:scaleY(0);transform-origin:top;} 50%{transform:scaleY(1);transform-origin:top;} 51%{transform:scaleY(1);transform-origin:bottom;} 100%{transform:scaleY(0);transform-origin:bottom;} }
+  .loader{ position:absolute; inset:0; z-index:9; display:flex; align-items:center; justify-content:center; background:var(--hero); transition:opacity .6s; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); }
+  .loader.hidden{ opacity:0; pointer-events:none; }
+
+  section.block{ padding:120px 40px; max-width:1000px; margin:0 auto; }
+  .eyebrow{ font-size:12px; letter-spacing:0.26em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+  .lead{ font-size:clamp(27px,4.6vw,52px); font-weight:500; line-height:1.14; max-width:20ch; font-family:var(--display); }
+  .lead .dim{ color:var(--muted); }
+  .grid4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:20px; margin-top:60px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:30px 26px; }
+  .card .dot{ width:30px; height:30px; border-radius:50%; margin-bottom:20px; }
+  .card h3{ font-size:21px; margin-bottom:8px; }
+  .card p{ color:var(--muted); font-size:14.5px; }
+  .quote{ max-width:860px; margin:0 auto; text-align:center; }
+  .quote blockquote{ font-family:var(--display); font-size:clamp(26px,4.4vw,44px); font-weight:500; line-height:1.22; }
+  .quote .by{ margin-top:24px; color:var(--muted); font-size:14px; font-family:var(--body); }
+  .cta{ text-align:center; padding:150px 40px; border-top:1px solid var(--line); }
+  .cta h2{ font-size:clamp(36px,7vw,80px); font-weight:500; }
+  .cta .btn{ display:inline-block; margin-top:34px; padding:16px 44px; border-radius:100px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600; font-size:14px; letter-spacing:0.03em; text-transform:uppercase; font-family:var(--body); transition:transform .25s; }
+  .cta .btn:hover{ transform:translateY(-3px); }
+  footer{ padding:46px 40px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; text-align:center; }
+
+  .reveal{ opacity:0; transform:translateY(38px); transition:opacity 1s ease, transform 1s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">Nasi Lemak</div>
+  <div class="links"><a href="#story">Story</a><a href="#plate">On the plate</a><a href="#order">Find it</a></div>
+</nav>
+
+<section id="foodPin">
+  <div class="sticky">
+    <div class="hero-head" id="heroCopy">
+      <div class="kicker">Malaysia's national dish</div>
+      <h1>Nasi Lemak</h1>
+      <p class="sub">Scroll to plate it up.</p>
+    </div>
+    <div class="hero-stage">
+      <div class="loader" id="loader">Loading…</div>
+      <video id="foodVideo" muted playsinline preload="auto" src="foodhero.mp4"></video>
+      <canvas id="foodCanvas"></canvas>
+      <div class="scroll-hint" id="scrollHint"><span>Scroll</span><span class="bar"></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="story">
+  <div class="eyebrow reveal">The dish</div>
+  <h2 class="lead reveal">A breakfast wrapped in a banana leaf <span class="dim">that became a whole country's comfort food.</span></h2>
+</section>
+<section class="block" id="plate">
+  <div class="eyebrow reveal">On the plate</div>
+  <div class="grid4">
+    <div class="card reveal"><div class="dot" style="background:#efe8d6;border:1px solid var(--line)"></div><h3>Coconut rice</h3><p>Rice steamed in coconut milk and pandan leaf — soft, fragrant, faintly sweet. The heart of the dish.</p></div>
+    <div class="card reveal"><div class="dot" style="background:#b5361b"></div><h3>Sambal</h3><p>A slow-cooked chilli paste, sweet-spicy and a little smoky. This is the part people argue about.</p></div>
+    <div class="card reveal"><div class="dot" style="background:#caa05a"></div><h3>The crunch</h3><p>Crispy fried anchovies (ikan bilis) and roasted peanuts for salt and texture in every bite.</p></div>
+    <div class="card reveal"><div class="dot" style="background:#f2a93a"></div><h3>The sides</h3><p>A fried or boiled egg and cool cucumber slices to balance all that heat. Simple, perfect.</p></div>
+  </div>
+</section>
+<section class="block quote" id="reviews">
+  <blockquote class="reveal">"You can get it for a dollar from a roadside stall or plated in a hotel — and somehow the dollar version always wins."</blockquote>
+  <div class="by reveal">— every Malaysian, ever</div>
+</section>
+<section class="cta" id="order">
+  <h2 class="reveal">Hungry yet?</h2>
+  <a href="#" class="btn reveal">Find it near you</a>
+</section>
+<footer>Nasi Lemak — a non-product scroll demo · plated live on canvas, or your own foodhero.mp4</footer>
+
+<script>
+(function(){
+  var pin=document.getElementById('foodPin'), stage=pin.querySelector('.hero-stage');
+  var video=document.getElementById('foodVideo'), canvas=document.getElementById('foodCanvas'), ctx=canvas.getContext('2d');
+  var loader=document.getElementById('loader'), heroCopy=document.getElementById('heroCopy'), scrollHint=document.getElementById('scrollHint');
+  var mode=null, dpr=Math.min(window.devicePixelRatio||1,2), W=0,H=0;
+  function hideLoader(){ loader.classList.add('hidden'); }
+  function size(){ W=canvas.width=stage.clientWidth*dpr; H=canvas.height=stage.clientHeight*dpr; }
+  size();
+  function disc(x,y,r,fill){ ctx.fillStyle=fill; ctx.beginPath(); ctx.arc(x,y,r,0,6.283); ctx.fill(); }
+  function ease(p,a,b){ var t=(p-a)/(b-a); t=t<0?0:t>1?1:t; return t*t*(3-2*t); }
+
+  // nasi lemak ASSEMBLING on the leaf as you scroll
+  function draw(p){
+    ctx.clearRect(0,0,W,H);
+    var bg=ctx.createRadialGradient(W/2,H*0.46,0,W/2,H*0.46,Math.max(W,H)*0.7);
+    bg.addColorStop(0,'#f4e7d2'); bg.addColorStop(1,'#e7d4ba'); ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    var cx=W/2, cy=H*0.52, RP=Math.min(W,H)*0.36;
+
+    // plate shadow + banana leaf
+    ctx.save(); ctx.fillStyle='rgba(80,50,20,0.12)'; ctx.beginPath(); ctx.ellipse(cx,cy+RP*0.12,RP*1.08,RP*1.0,0,0,6.283); ctx.fill(); ctx.restore();
+    var leaf=ctx.createRadialGradient(cx-RP*0.3,cy-RP*0.3,RP*0.2,cx,cy,RP*1.05);
+    leaf.addColorStop(0,'#3a7d45'); leaf.addColorStop(1,'#2b5c34'); disc(cx,cy,RP,leaf);
+    ctx.strokeStyle='rgba(20,50,25,0.5)'; ctx.lineWidth=2*dpr; ctx.beginPath(); ctx.arc(cx,cy,RP*0.98,0,6.283); ctx.stroke();
+
+    function item(lp, fn){ if(lp<=0) return; ctx.save(); ctx.globalAlpha=lp; ctx.translate(cx,cy); var s=0.72+0.28*lp; ctx.scale(s,s); fn(); ctx.restore(); }
+
+    // 1) coconut rice
+    item(ease(p,0.10,0.30), function(){
+      disc(-RP*0.20,-RP*0.10,RP*0.46,'#f1ecdd');
+      ctx.fillStyle='rgba(208,198,168,0.55)'; for(var g=0;g<40;g++){ var a=g*1.7, rr=RP*0.42*Math.sqrt((g%10)/10); ctx.fillRect(-RP*0.20+Math.cos(a)*rr, -RP*0.10+Math.sin(a)*rr, 2*dpr, 4*dpr); }
+    });
+    // 2) sambal
+    item(ease(p,0.30,0.46), function(){
+      var sam=ctx.createRadialGradient(RP*0.42,-RP*0.02,2,RP*0.42,-RP*0.02,RP*0.26); sam.addColorStop(0,'#c23c1c'); sam.addColorStop(1,'#8f2a12'); disc(RP*0.42,-RP*0.02,RP*0.24,sam);
+      disc(RP*0.36,-RP*0.08,RP*0.05,'rgba(255,200,150,0.4)');
+    });
+    // 3) fried egg
+    item(ease(p,0.46,0.60), function(){
+      disc(RP*0.02,RP*0.46,RP*0.22,'#fbf6ea'); disc(RP*0.05,RP*0.48,RP*0.09,'#f2a83a'); disc(RP*0.07,RP*0.45,RP*0.03,'#f7c061');
+    });
+    // 4) cucumber
+    item(ease(p,0.58,0.72), function(){
+      for(var c=0;c<3;c++){ var ang=-1.95+c*0.32; var ex=Math.cos(ang)*RP*0.62, ey=Math.sin(ang)*RP*0.62; disc(ex,ey,RP*0.11,'#a9cf7a'); disc(ex,ey,RP*0.055,'#cfe6a8'); }
+    });
+    // 5) peanuts + anchovies
+    item(ease(p,0.70,0.86), function(){
+      for(var n=0;n<10;n++){ var px=-RP*0.5+Math.cos(n*2.1)*RP*0.14, py=RP*0.34+Math.sin(n*2.1)*RP*0.12; disc(px,py,RP*0.045,'#cda35c'); }
+      ctx.fillStyle='#9c7b4e'; for(var b=0;b<8;b++){ var bx=-RP*0.36+Math.cos(b*1.3)*RP*0.12, by=RP*0.5+Math.sin(b*1.3)*RP*0.08; ctx.save(); ctx.translate(bx,by); ctx.rotate(b); ctx.fillRect(-RP*0.04,-RP*0.012,RP*0.08,RP*0.024); ctx.restore(); }
+    });
+
+    // steam wisps rising once the rice is down
+    var steam=ease(p,0.34,0.7);
+    if(steam>0){ ctx.save(); ctx.globalAlpha=steam*0.5; ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=3*dpr; ctx.lineCap='round';
+      for(var w=0;w<3;w++){ var sx=cx + (w-1)*RP*0.22; var baseY=cy-RP*0.2;
+        ctx.beginPath(); for(var t=0;t<=1;t+=0.1){ var yy=baseY - t*RP*0.95; var xx=sx + Math.sin(t*6 + p*8 + w)*RP*0.05; (t===0)?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy); } ctx.stroke(); }
+      ctx.restore();
+    }
+  }
+
+  function getProgress(){ var t=pin.offsetHeight-window.innerHeight; var s=Math.min(Math.max(-pin.getBoundingClientRect().top,0),t); return t>0?s/t:0; }
+  var ticking=false;
+  function update(){ var p=getProgress(); if(mode==='video'&&video.duration){ video.currentTime=p*video.duration; } else if(mode==='canvas'){ draw(p); } heroCopy.style.opacity=Math.max(0,1-p/0.85); scrollHint.style.opacity=Math.max(0,1-p/0.12); ticking=false; }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }
+  function startVideo(){ if(mode==='video')return; mode='video'; canvas.style.display='none'; video.style.display='block'; hideLoader(); update(); }
+  function startCanvas(){ if(mode==='video')return; mode='canvas'; video.style.display='none'; canvas.style.display='block'; size(); hideLoader(); update(); }
+  function tryVideo(){ if(video.videoWidth && video.duration>0){ startVideo(); return true; } return false; }
+  video.addEventListener('loadedmetadata',tryVideo); video.addEventListener('loadeddata',tryVideo); video.addEventListener('canplay',tryVideo);
+  video.addEventListener('error',startCanvas);
+  try{ video.load(); }catch(e){}
+  if(!tryVideo()){ setTimeout(function(){ if(mode!=='video') startCanvas(); },1500); }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',function(){ dpr=Math.min(window.devicePixelRatio||1,2); size(); update(); });
+
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

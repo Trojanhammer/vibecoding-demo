@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Summit Tee — Demo</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#efeae3; --panel:#f8f5f0; --text:#26221d; --muted:#7a7167;
+    --accent:#9c6b4f; --line:rgba(0,0,0,0.12); --hero:#d8d6d3;
+    --display:Georgia, "Times New Roman", serif;
+    --body:"Inter", system-ui, -apple-system, sans-serif;
+  }
+  html,body{ background:var(--bg); color:var(--text); }
+  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; overflow-x:hidden; line-height:1.65; }
+  h1,h2,h3,.display{ font-family:var(--display); letter-spacing:-0.01em; font-weight:500; }
+  ::selection{ background:var(--accent); color:#fff; }
+
+  nav{ position:fixed; top:0; left:0; width:100%; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:18px 40px; background:rgba(239,234,227,0.7); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  nav .logo{ font-family:var(--display); font-weight:500; font-size:19px; letter-spacing:0.06em; }
+  nav .links{ display:flex; gap:26px; }
+  nav .links a{ color:var(--text); text-decoration:none; font-size:13px; letter-spacing:0.04em; text-transform:uppercase; opacity:0.8; }
+  nav .links a:hover{ opacity:1; }
+  @media (max-width:720px){ nav .links{ display:none; } }
+
+  #heroPin{ height:400vh; position:relative; }
+  .sticky{ position:sticky; top:0; height:100vh; width:100%; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; }
+  .hero-head{ flex:0 0 auto; text-align:center; padding:clamp(80px,11vh,122px) 24px 20px; }
+  .hero-head .kicker{ font-size:12px; letter-spacing:0.38em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  .hero-head h1{ font-size:clamp(34px,5.6vw,72px); font-weight:500; line-height:0.99; }
+  .hero-head .sub{ margin-top:10px; color:var(--muted); font-size:clamp(14px,1.7vw,18px); font-family:var(--body); }
+  .hero-stage{ position:relative; flex:1 1 auto; overflow:hidden; background:var(--hero); }
+  #heroVideo,#heroCanvas{ position:absolute; inset:0; width:100%; height:100%; }
+  #heroVideo{ object-fit:cover; object-position:center top; }
+  #heroCanvas{ display:none; }
+  .seam{ display:none; }
+  .seam-bottom{ position:absolute; left:0; right:0; bottom:0; height:170px; z-index:2; background:linear-gradient(to top, var(--hero) 4%, rgba(216,214,211,0)); pointer-events:none; }
+  .scroll-hint{ position:absolute; bottom:24px; left:50%; transform:translateX(-50%); z-index:4; font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:#5a5650; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .scroll-hint .bar{ width:1px; height:38px; background:linear-gradient(#5a5650, transparent); animation:drop 1.6s ease-in-out infinite; }
+  @keyframes drop{ 0%{transform:scaleY(0);transform-origin:top;} 50%{transform:scaleY(1);transform-origin:top;} 51%{transform:scaleY(1);transform-origin:bottom;} 100%{transform:scaleY(0);transform-origin:bottom;} }
+  .loader{ position:absolute; inset:0; z-index:9; display:flex; align-items:center; justify-content:center; background:var(--hero); transition:opacity .6s; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#5a5650; }
+  .loader.hidden{ opacity:0; pointer-events:none; }
+
+  section.block{ padding:120px 40px; max-width:1100px; margin:0 auto; }
+  .eyebrow{ font-size:12px; letter-spacing:0.28em; text-transform:uppercase; color:var(--accent); margin-bottom:20px; }
+  .lead{ font-size:clamp(28px,5vw,56px); font-weight:500; line-height:1.12; max-width:20ch; font-family:var(--display); }
+  .lead .dim{ color:var(--muted); }
+  .grid3{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px; margin-top:60px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:32px 28px; }
+  .card .num{ font-family:var(--display); font-size:15px; color:var(--accent); margin-bottom:22px; }
+  .card h3{ font-size:22px; margin-bottom:10px; }
+  .card p{ color:var(--muted); font-size:15px; }
+  .specs{ border-top:1px solid var(--line); margin-top:36px; }
+  .spec-row{ display:grid; grid-template-columns:1fr 2fr; gap:20px; padding:24px 0; border-bottom:1px solid var(--line); }
+  .spec-row .k{ color:var(--muted); font-size:13px; letter-spacing:0.04em; text-transform:uppercase; }
+  .spec-row .v{ font-size:clamp(18px,2.4vw,26px); font-weight:500; font-family:var(--display); }
+  .quote{ max-width:880px; margin:0 auto; text-align:center; }
+  .quote blockquote{ font-family:var(--display); font-size:clamp(26px,4.5vw,44px); font-weight:500; line-height:1.22; }
+  .quote .by{ margin-top:26px; color:var(--muted); font-size:14px; font-family:var(--body); }
+  .cta{ text-align:center; padding:150px 40px; border-top:1px solid var(--line); }
+  .cta h2{ font-size:clamp(38px,8vw,90px); font-weight:500; line-height:1.0; }
+  .cta .btn{ display:inline-block; margin-top:34px; padding:16px 44px; border-radius:100px; background:var(--text); color:var(--bg); text-decoration:none; font-weight:600; font-size:14px; letter-spacing:0.04em; text-transform:uppercase; font-family:var(--body); transition:transform .25s; }
+  .cta .btn:hover{ transform:translateY(-3px); }
+  footer{ padding:46px 40px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; color:var(--muted); font-size:13px; }
+
+  .reveal{ opacity:0; transform:translateY(38px); transition:opacity .9s ease, transform .9s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">SUMMIT</div>
+  <div class="links"><a href="#story">Story</a><a href="#details">Details</a><a href="#specs">Fabric</a><a href="#buy">Buy</a></div>
+</nav>
+
+<section id="heroPin">
+  <div class="sticky">
+    <div class="hero-head" id="heroCopy">
+      <div class="kicker">Premium basics</div>
+      <h1>The Summit Tee</h1>
+    </div>
+    <div class="hero-stage">
+      <div class="loader" id="loader">Loading…</div>
+      <video id="heroVideo" muted playsinline preload="auto" src="shirt.mp4"></video>
+      <canvas id="heroCanvas"></canvas>
+      <div class="scroll-hint" id="scrollHint"><span>Scroll</span><span class="bar"></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="story">
+  <div class="eyebrow reveal">The idea</div>
+  <h2 class="lead reveal">One tee, considered <span class="dim">down to the last stitch.</span></h2>
+</section>
+<section class="block" id="details">
+  <div class="eyebrow reveal">In the detail</div>
+  <div class="grid3">
+    <div class="card reveal"><div class="num">01</div><h3>Heavyweight cotton</h3><p>240gsm combed cotton with real structure — it holds its shape wash after wash, never thin or clingy.</p></div>
+    <div class="card reveal"><div class="num">02</div><h3>The mountain mark</h3><p>A small mountain-and-sun emblem embroidered in off-white on the chest. Quiet, but unmistakably ours.</p></div>
+    <div class="card reveal"><div class="num">03</div><h3>Ribbed trim</h3><p>A ribbed collar and cuffs in a subtle contrast — the small upgrade that makes a plain tee feel considered.</p></div>
+  </div>
+</section>
+<section class="block" id="specs">
+  <div class="eyebrow reveal">The fabric</div>
+  <div class="specs">
+    <div class="spec-row reveal"><div class="k">Material</div><div class="v">240gsm combed cotton</div></div>
+    <div class="spec-row reveal"><div class="k">Colour</div><div class="v">Washed black</div></div>
+    <div class="spec-row reveal"><div class="k">Fit</div><div class="v">Relaxed, true to size</div></div>
+    <div class="spec-row reveal"><div class="k">Detail</div><div class="v">Embroidered chest emblem</div></div>
+    <div class="spec-row reveal"><div class="k">Care</div><div class="v">Cold wash · hang dry</div></div>
+  </div>
+</section>
+<section class="block quote" id="reviews">
+  <blockquote class="reveal">"It's the one I reach for every day. The weight, the drape, that little emblem — it just feels right."</blockquote>
+  <div class="by reveal">— Aisyah R., verified buyer · ★ 5 / 5</div>
+</section>
+<section class="cta" id="buy">
+  <h2 class="reveal">The Summit Tee.<br>$48.</h2>
+  <a href="#" class="btn reveal">Add to bag</a>
+</section>
+<footer>
+  <div>© 2026 — SUMMIT demo page for vibecoding class</div>
+  <div>Scroll-scrub hero · vanilla JS</div>
+</footer>
+
+<script>
+(function(){
+  var pin=document.getElementById('heroPin'), stage=pin.querySelector('.hero-stage');
+  var video=document.getElementById('heroVideo'), canvas=document.getElementById('heroCanvas');
+  var loader=document.getElementById('loader'), heroCopy=document.getElementById('heroCopy'), scrollHint=document.getElementById('scrollHint');
+  var ctx=canvas.getContext('2d'), mode=null, dpr=Math.min(window.devicePixelRatio||1,2);
+  function hideLoader(){ loader.classList.add('hidden'); }
+  function getProgress(){ var t=pin.offsetHeight-window.innerHeight; var s=Math.min(Math.max(-pin.getBoundingClientRect().top,0),t); return t>0?s/t:0; }
+  function sizeCanvas(){ canvas.width=stage.clientWidth*dpr; canvas.height=stage.clientHeight*dpr; }
+  function drawCanvas(p){
+    var W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H);
+    var bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#dcdad7'); bg.addColorStop(1,'#c9c7c3'); ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    var cx=W/2,cy=H/2,w=Math.min(W,H)*0.4,h=w*0.78,flip=Math.cos(p*Math.PI*2);
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(flip,1);
+    var g=ctx.createLinearGradient(-w/2,0,w/2,0); g.addColorStop(0,'#2b2b2d'); g.addColorStop(0.5,'#3c3c40'); g.addColorStop(1,'#222224'); ctx.fillStyle=g;
+    var r=w*0.06,x=-w/2,y=-h/2; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(-w*0.18, -h*0.08, w*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle='rgba(60,55,48,0.6)'; ctx.font=(14*dpr)+'px sans-serif'; ctx.textAlign='center'; ctx.fillText(Math.round(p*100)+'%',cx,cy+h*0.78);
+  }
+  var ticking=false;
+  function update(){ var p=getProgress(); if(mode==='video'&&video.duration){ video.currentTime=p*video.duration; } else if(mode==='canvas'){ drawCanvas(p); } heroCopy.style.opacity=Math.max(0,1-p/0.7); scrollHint.style.opacity=Math.max(0,1-p/0.12); ticking=false; }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }
+  function startVideo(){ if(mode==='video')return; mode='video'; canvas.style.display='none'; video.style.display='block'; hideLoader(); update(); }
+  function startCanvas(){ if(mode==='video')return; mode='canvas'; video.style.display='none'; canvas.style.display='block'; sizeCanvas(); hideLoader(); update(); }
+  function tryVideo(){ if(video.videoWidth && video.duration>0){ startVideo(); return true; } return false; }
+  video.addEventListener('loadedmetadata',tryVideo); video.addEventListener('loadeddata',tryVideo); video.addEventListener('canplay',tryVideo);
+  video.addEventListener('error',startCanvas);
+  try{ video.load(); }catch(e){}
+  if(!tryVideo()){ setTimeout(function(){ if(mode!=='video') startCanvas(); },1500); }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',function(){ dpr=Math.min(window.devicePixelRatio||1,2); if(mode==='canvas') sizeCanvas(); update(); });
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:0.2});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
