@@ -3,78 +3,128 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Scroll-Scrub Showcase — Vibecoding Demo</title>
+<title>SCROLL WEBSITES — Select a Stage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root{
-    --bg:#0b0b0d; --panel:#141417; --text:#f2f2f4; --muted:#9a9aa2;
-    --accent:#6c8cff; --line:rgba(255,255,255,0.10);
-    --display:"Space Grotesk", system-ui, sans-serif;
-    --body:"Inter", system-ui, -apple-system, sans-serif;
+    --bg:#0a0a14; --panel:#13131f; --text:#ffffff; --muted:#aab0d8;
+    --red:#e60012; --cyan:#3fe0ff; --yellow:#ffd23f; --line:rgba(255,255,255,0.14);
+    --pixel:"Press Start 2P", monospace;
+    --body:"Inter", system-ui, sans-serif;
   }
   html,body{ background:var(--bg); color:var(--text); }
-  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; line-height:1.7; min-height:100vh; }
-  h1,h2,h3,.display{ font-family:var(--display); letter-spacing:-0.02em; }
+  body{ font-family:var(--body); -webkit-font-smoothing:antialiased; line-height:1.7; min-height:100vh; position:relative; overflow-x:hidden;
+        background-image:radial-gradient(rgba(63,224,255,0.05) 1px, transparent 1px); background-size:22px 22px; }
   a{ color:inherit; text-decoration:none; }
-  ::selection{ background:var(--accent); color:#fff; }
+  ::selection{ background:var(--red); color:#fff; }
 
-  .wrap{ max-width:1080px; margin:0 auto; padding:0 28px; }
-  header{ padding:clamp(70px,12vh,130px) 0 50px; text-align:center; }
-  header .kicker{ font-size:12px; letter-spacing:0.34em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
-  header h1{ font-size:clamp(38px,7vw,80px); font-weight:700; line-height:1.0; }
-  header p{ margin:18px auto 0; max-width:54ch; color:var(--muted); font-size:clamp(15px,2vw,18px); }
+  /* CRT scanlines + vignette */
+  .crt{ position:fixed; inset:0; z-index:100; pointer-events:none;
+        background:repeating-linear-gradient(rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.16) 2px 3px); }
+  .vig{ position:fixed; inset:0; z-index:99; pointer-events:none; background:radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(0,0,0,0.55) 100%); }
 
-  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; padding-bottom:60px; }
-  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; transition:transform .3s ease, border-color .3s ease; }
-  .card:hover{ transform:translateY(-6px); border-color:rgba(255,255,255,0.24); }
-  .media{ position:relative; aspect-ratio:16/10; overflow:hidden; background:#1c1c20; }
-  .media video{ width:100%; height:100%; object-fit:cover; display:block; }
-  .media .tag{ position:absolute; top:12px; left:12px; z-index:2; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:5px 11px; border-radius:100px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); color:#fff; }
-  .body{ padding:22px 22px 24px; flex:1; display:flex; flex-direction:column; }
-  .body h3{ font-size:21px; margin-bottom:6px; }
-  .body p{ color:var(--muted); font-size:14.5px; flex:1; }
-  .body .go{ margin-top:18px; font-size:14px; font-weight:500; color:var(--accent); display:inline-flex; align-items:center; gap:7px; }
-  .card:hover .go{ gap:11px; }
+  .hud{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; max-width:1060px; margin:0 auto; padding:18px 24px 0; font-family:var(--pixel); font-size:9px; color:var(--muted); }
+  .hud b{ color:#fff; }
+  .hud .coins{ display:inline-flex; align-items:center; gap:9px; color:var(--yellow); }
+  .coin{ width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe98a, #f5b800 60%, #c98700); border:2px solid #8a5e00; box-shadow:0 0 7px rgba(255,200,40,0.55); animation:bob 1.1s ease-in-out infinite; }
+  @keyframes bob{ 50%{ transform:translateY(-3px); } }
 
-  .note{ border-top:1px solid var(--line); padding:34px 0 80px; color:var(--muted); font-size:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; }
-  .note a{ color:var(--accent); }
+  .decor{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .decor .sprite{ position:absolute; }
+  .s-controller{ left:28px; bottom:26px; width:118px; }
+  .s-pipe{ right:34px; bottom:0; width:86px; }
+  .s-coin{ right:52px; bottom:118px; width:30px; animation:bob 1.1s ease-in-out infinite; }
+  .s-star{ right:42px; top:128px; width:44px; animation:spin 5s linear infinite; }
+  .s-mushroom{ left:44px; top:140px; width:50px; animation:bob 1.5s ease-in-out infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @media (max-width:1180px){ .decor{ display:none; } }
+
+  .wrap{ max-width:1060px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+  header{ padding:clamp(64px,11vh,120px) 0 44px; text-align:center; }
+  header .kicker{ font-family:var(--pixel); font-size:10px; letter-spacing:0.12em; color:var(--cyan); margin-bottom:26px; }
+  header h1{ font-family:var(--pixel); font-size:clamp(22px,5.2vw,46px); line-height:1.25; color:#fff; text-shadow:4px 4px 0 var(--red); }
+  .blink{ font-family:var(--pixel); font-size:11px; color:var(--yellow); margin-top:30px; animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:26px; padding-bottom:50px; }
+  .cart{ background:var(--panel); border:3px solid var(--line); box-shadow:7px 7px 0 var(--red); display:flex; flex-direction:column; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+  .cart:hover{ transform:translate(-2px,-2px); box-shadow:10px 10px 0 var(--red); border-color:#fff; }
+  .screen{ position:relative; aspect-ratio:4/3; overflow:hidden; background:#05060c; border-bottom:3px solid var(--line); }
+  .screen video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .screen .badge{ position:absolute; top:10px; left:10px; z-index:2; font-family:var(--pixel); font-size:9px; color:#fff; background:var(--red); padding:6px 8px; }
+  .screen .scan{ position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(rgba(0,0,0,0) 0 2px, rgba(0,0,0,0.22) 2px 3px); }
+  .label{ padding:20px 20px 22px; flex:1; display:flex; flex-direction:column; }
+  .label h3{ font-family:var(--pixel); font-size:13px; line-height:1.5; margin-bottom:12px; }
+  .label p{ color:var(--muted); font-size:14px; flex:1; }
+  .label .play{ font-family:var(--pixel); font-size:10px; color:var(--cyan); margin-top:16px; opacity:0; transition:opacity .12s; }
+  .cart:hover .label .play{ opacity:1; }
+
+  footer{ border-top:3px solid var(--line); padding:28px 0 70px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  footer .pix{ font-family:var(--pixel); font-size:9px; color:var(--yellow); }
+  footer a{ color:var(--cyan); }
 </style>
 </head>
 <body>
+<div class="crt"></div>
+<div class="vig"></div>
+
+<div class="decor" aria-hidden="true">
+  <svg class="sprite s-controller" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="54" height="22" rx="6" fill="#3a3a48" stroke="#11111a" stroke-width="2"/><rect x="11" y="13" width="11" height="4" fill="#11111a"/><rect x="14.5" y="9.5" width="4" height="11" fill="#11111a"/><circle cx="44" cy="12" r="3" fill="#e60012"/><circle cx="50" cy="17" r="3" fill="#ffd23f"/><rect x="27" y="14.5" width="7" height="2.5" rx="1.2" fill="#11111a"/></svg>
+  <svg class="sprite s-pipe" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="36" height="12" rx="2" fill="#2faf3a" stroke="#15601c" stroke-width="2"/><rect x="7" y="14" width="26" height="34" fill="#2faf3a" stroke="#15601c" stroke-width="2"/><rect x="9" y="4" width="5" height="8" fill="#76e07f"/><rect x="10" y="16" width="4" height="30" fill="#76e07f"/></svg>
+  <svg class="sprite s-coin" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="#f5b800" stroke="#8a5e00" stroke-width="2"/><ellipse cx="10" cy="10" rx="3.2" ry="5" fill="none" stroke="#c98700" stroke-width="1.6"/></svg>
+  <svg class="sprite s-star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12,1.5 15,9 23,9 16.5,13.8 19,21.5 12,16.8 5,21.5 7.5,13.8 1,9 9,9" fill="#ffd23f" stroke="#b8860b" stroke-width="1.4"/><circle cx="9.8" cy="11.5" r="1" fill="#3a2a00"/><circle cx="14.2" cy="11.5" r="1" fill="#3a2a00"/></svg>
+  <svg class="sprite s-mushroom" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 12.5 a9.5 8.5 0 0 1 19 0 z" fill="#e60012" stroke="#7a0a10" stroke-width="1.4"/><circle cx="8" cy="8.5" r="2" fill="#fff"/><circle cx="16" cy="9.2" r="1.6" fill="#fff"/><rect x="7" y="12.2" width="10" height="9.3" rx="2.4" fill="#ffe3c2" stroke="#7a0a10" stroke-width="1.4"/><rect x="9.6" y="15" width="1.7" height="3.4" rx="0.6" fill="#7a0a10"/><rect x="12.8" y="15" width="1.7" height="3.4" rx="0.6" fill="#7a0a10"/></svg>
+</div>
+
+<div class="hud">
+  <span class="cell">1UP&nbsp;&nbsp;<b id="score">000000</b></span>
+  <span class="cell">HI-SCORE&nbsp;&nbsp;<b>999999</b></span>
+  <span class="cell coins"><i class="coin"></i> × <span id="coins">03</span></span>
+</div>
+
 <div class="wrap">
   <header>
-    <div class="kicker">Vibecoding class · scroll demos</div>
-    <h1>Scroll-Scrub Showcase</h1>
-    <p>Three premium, scroll-driven landing pages — where the hero animation is controlled frame-by-frame by your scroll. Built with plain HTML, CSS and JavaScript. No frameworks, no dependencies.</p>
+    <div class="kicker">Personal project — select a stage</div>
+    <h1>SCROLL WEBSITES</h1>
+    <div class="blink">▶ PRESS START</div>
   </header>
 
   <div class="grid">
-    <a class="card" href="macbook.html">
-      <div class="media"><span class="tag">Product · Tech</span><video src="mac.mp4" muted loop playsinline preload="metadata"></video></div>
-      <div class="body"><h3>MacBook Pro</h3><p>A scroll-scrubbed product video in a clean Apple-style light theme. Scroll to rotate the laptop, then the page reveals features and specs.</p><span class="go">View demo →</span></div>
+    <a class="cart" href="macbook.html">
+      <div class="screen"><span class="badge">1P</span><video src="mac.mp4" muted loop playsinline preload="metadata"></video><div class="scan"></div></div>
+      <div class="label"><h3>MACBOOK PRO</h3><p>Scroll-scrubbed product video in a clean light theme. Scroll to spin the laptop, then reveal the specs.</p><span class="play">▶ PLAY</span></div>
     </a>
-    <a class="card" href="shirt.html">
-      <div class="media"><span class="tag">Product · Fashion</span><video src="shirt.mp4" muted loop playsinline preload="metadata"></video></div>
-      <div class="body"><h3>The Summit Tee</h3><p>The same technique with a warm editorial fashion look. The garment turns as you scroll, then the story and fabric details appear.</p><span class="go">View demo →</span></div>
+    <a class="cart" href="shirt.html">
+      <div class="screen"><span class="badge">2P</span><video src="shirt.mp4" muted loop playsinline preload="metadata"></video><div class="scan"></div></div>
+      <div class="label"><h3>SUMMIT TEE</h3><p>Same trick, warm editorial fashion look. The shirt turns as you scroll, then the story appears.</p><span class="play">▶ PLAY</span></div>
     </a>
-    <a class="card" href="recipe.html">
-      <div class="media"><span class="tag">Food · Story</span><video src="foodhero.mp4" muted loop playsinline preload="metadata"></video></div>
-      <div class="body"><h3>Nasi Lemak</h3><p>A non-product scroll story. A ladle pours sambal over rice as you scroll, then the dish's components and origin are revealed.</p><span class="go">View demo →</span></div>
+    <a class="cart" href="recipe.html">
+      <div class="screen"><span class="badge">3P</span><video src="foodhero.mp4" muted loop playsinline preload="metadata"></video><div class="scan"></div></div>
+      <div class="label"><h3>NASI LEMAK</h3><p>A non-product scroll story — a ladle pours sambal over rice, then the dish is revealed.</p><span class="play">▶ PLAY</span></div>
     </a>
   </div>
 
-  <div class="note">
-    <span>Built for a vibecoding class · 2026</span>
-    <span>Scroll-scrub heroes · vanilla JS · <a href="https://github.com/Trojanhammer/vibecoding-demo">source</a></span>
-  </div>
+  <footer>
+    <span class="pix">INSERT COIN</span>
+    <span>A personal project by Trojanhammer · 2026 · <a href="https://github.com/Trojanhammer/vibecoding-demo">source</a></span>
+  </footer>
 </div>
 
 <script>
-  document.querySelectorAll('.card').forEach(function(card){
-    var v = card.querySelector('video');
-    if(!v) return;
-    card.addEventListener('mouseenter', function(){ var p=v.play(); if(p&&p.catch)p.catch(function(){}); });
-    card.addEventListener('mouseleave', function(){ v.pause(); v.currentTime=0; });
+  function fmt(n,len){ n=Math.round(n).toString(); while(n.length<len) n='0'+n; return n; }
+  var scoreEl=document.getElementById('score'), coinsEl=document.getElementById('coins');
+  var current=0, target=3200, coins=3;
+  (function loop(){ current+=(target-current)*0.1; if(Math.abs(target-current)<0.5) current=target; scoreEl.textContent=fmt(current,6); requestAnimationFrame(loop); })();
+  document.querySelectorAll('.cart').forEach(function(card){
+    var v=card.querySelector('video');
+    card.addEventListener('mouseenter',function(){
+      if(v){ var p=v.play(); if(p&&p.catch)p.catch(function(){}); }
+      target+=500; coins++; coinsEl.textContent=fmt(coins,2);
+    });
+    card.addEventListener('mouseleave',function(){ if(v){ v.pause(); v.currentTime=0; } });
   });
 </script>
 </body>
